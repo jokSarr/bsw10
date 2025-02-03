@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="template_ChefDepartement">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<div layout:fragment="custom-content" class="container">
+
+    <br/>
+    <h3 style="text-align: center">Maquette de la formation</h3>
+
+    <div class="row" style="padding-bottom: 10px; padding-top: 10px">
+        <div style="text-align: center">
+            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#form_Ajouter_Etudiant" >Ajouter une Maquette</button>
+        </div>
+    </div>
+
+    <ul class="nav nav-tabs">
+        <li class="active"><a data-toggle="tab" href="#tab_Permanent">Semestre 1</a></li>
+        <li><a data-toggle="tab" href="#tab_Vacataire">Semestre 2</a></li>
+    </ul>
+
+    <div class="container">
+
+        <br/>
+
+
+        <div data-dismiss="modal" style="margin-top:25px">
+            <div class="modal fade" id="form_Ajouter_Etudiant">
+                <div class="modal-dialog" >
+                    <div class="modal-content panel-success" >
+
+                        <div class="modal-header panel-heading" >
+                            <button type="button" class="close" data-dismiss="modal">x</button>
+                            <h4 class="modal-title" style="text-align: center">Ajouter une Maquette</h4>
+                        </div>
+                        <form th:action="@{AjoutUE}" method="post">
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label for="semestre">Semestre</label>
+                                    <select class="form-control" id="semestre" name="semestre" required>
+                                        <option value="1">Semestre 1</option>
+                                        <option value="2">Semestre 2</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="idue">UE</label>
+                                    <select class="form-control" id="idue" name="idue" required>
+                                        <option th:each=" ue : ${listUe}" th:value="${ue.id}" th:text="${ue.libelle}"></option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <input  type="hidden" name="idMaquette" th:each="mqt : ${maquette}" th:value="${mqt.id}"/>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <div class="row">
+                                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-4">
+                                        <button type="submit" class="btn btn-success" onclick="ajouterUeAMaquette()">Ajouter</button>
+                                    </div>
+                                    <div class="col-lg-offset-5 col-lg-3 col-md-offset-5 col-md-3 col-sm-offset-5 col-sm-3 col-xs-8">
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div><div class="tab-content">
+        <div id="tab_Permanent" class="tab-pane fade in active">
+            <h4>Semestre 1</h4>
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                    <tr>
+                        <th>Libelle</th>
+                        <th>Code</th>
+                        <th>Coefficient</th>
+                        <th>EC</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="ue : ${uesSemestre1}">
+                        <td th:text="${ue.getLibelle()}"></td>
+                        <td th:text="${ue.getCode()}"></td>
+                        <td th:text="${ue.getCoefficient()}"></td>
+                        <td th:text="${ue.getEcs()}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div id="tab_Vacataire" class="tab-pane fade">
+            <h4>Semestre 2</h4>
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                    <tr>
+                        <th>Libelle</th>
+                        <th>Code</th>
+                        <th>Coefficient</th>
+                        <th>EC</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="ue : ${uesSemestre2}">
+                        <td th:text="${ue.getLibelle()}"></td>
+                        <td th:text="${ue.getCode()}"></td>
+                        <td th:text="${ue.getCoefficient()}"></td>
+                        <td th:text="${ue.getEcs()}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+                <input type="hidden" id="idMaquette" value="1"> <!-- ID de la maquette -->
+                <table class="table" id="tableauUE">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Libellé</th>
+                        <th>Code</th>
+                        <th>Crédits</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <!-- Les lignes du tableau seront générées dynamiquement -->
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    </div>
+
+        <!-- Fin lister tout les UEs -->
+
+        <!-- Debut Datatable lister UE -->
+        <script>
+            $(document).ready(function() {
+                $("#table_Maquette").DataTable({
+
+                });
+            })
+        </script>
+        <!-- Fin Datatable lister UEs -->
+
+        <script>
+            function ajouterUeAMaquette() {
+                const idMaquette = document.getElementById('idMaquette').value;
+                const idUE = document.getElementById('idue').value;
+
+                fetch('/ChefDepartement/AjoutUE', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `idMaquette=${idMaquette}&idUE=${idUE}`
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        const tableau = document.getElementById('tableauUE');
+                        tableau.innerHTML = '';
+                        data.ues.forEach(ue => {
+                            const row = `<tr>
+                                <td>${ue.id}</td>
+                                <td>${ue.libelle}</td>
+                                <td>${ue.code}</td>
+                                <td>${ue.credits}</td>
+                            </tr>`;
+                            tableau.innerHTML += row;
+                        });
+                    })
+                    .catch(error => console.error('Erreur:', error));
+            }
+        </script>
+
+    </div>
+
+</div>
+
+
+</body>
+</html>

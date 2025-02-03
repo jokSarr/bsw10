@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+
+
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <link  rel="stylesheet" href="../static/css/bootstrap.css" th:href="@{/css/bootstrap.css}"/>
+    <link  rel="stylesheet" href="../static/css/buttons.dataTables.min.css" th:href="@{/css/buttons.dataTables.min.css}"/>
+    <link  rel="stylesheet" href="../static/css/jquery.dataTables.min.css" th:href="@{/css/jquery.dataTables.min.css}"/>
+
+    <script src="../static/js/jquery-3.7.0.js" th:src="@{/js/jquery-3.7.0.js}"></script>
+    <script src="../static/js/bootstrap.js" th:src="@{/js/bootstrap.js}"></script>
+    <script src="../static/js/dataTables.buttons.min.js" th:src="@{/js/dataTables.buttons.min.js}"></script>
+    <script src="../static/js/jquery.dataTables.min.js" th:src="@{/js/jquery.dataTables.min.js}"></script>
+
+    <title>UE</title>
+</head>
+<body>
+<header>
+    <nav class="navbar navbar-inverse">
+        <div class="container-fluid">
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-left">
+                    <li>
+                        <a><span>Accueil</span></a>
+                    </li>
+                    <li>
+                        <a><span>Emploi du Temps</span></a>
+                    </li>
+                    <li>
+                        <a><span>Repartition</span></a>
+                    </li>
+                    <li>
+                        <a th:href="@{/ChefDepartement/Enseignant}"><span>Enseignants</span></a>
+                    </li>
+                    <li>
+                        <a th:href="@{/ChefDepartement/Formations}"><span>Formation</span></a>
+                    </li>
+                    <li>
+                        <a th:href="@{/ChefDepartement/Maquettes}"><span>Syllabus</span></a>
+                    </li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <span th:text="${prenom+'. '+nom}"></span><span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a th:href="@{/profil}"><span>Profil</span></a>
+                            </li>
+                            <li><a th:href="@{/logout}"><span>Deconnexion</span></a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div><!-- /.navbar-collapse -->
+        </div><!-- /.container-fluid -->
+    </nav>
+</header>
+
+
+<div class="container">
+
+    <br/>
+
+    <h3 style="text-align: center">La liste des Classes de la Formation <span th:text="${formation.nom }"></span></h3>
+
+
+    <div class="row" style="padding-bottom: 10px; padding-top: 10px">
+        <div style="text-align: center">
+            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#form_Ajouter_Etudiant" >Ajouter Classe</button>
+        </div>
+    </div>
+
+    <div data-dismiss="modal" style="margin-top:25px">
+        <div class="modal fade" id="form_Ajouter_Etudiant">
+            <div class="modal-dialog" >
+                <div class="modal-content panel-success" >
+
+                    <div class="modal-header panel-heading" >
+                        <button type="button" class="close" data-dismiss="modal">x</button>
+                        <h4 class="modal-title" style="text-align: center">Ajouter une Classe</h4>
+                    </div>
+
+                    <form th:action="@{ajouterClasse}" method="post">
+                        <div class="modal-body" >
+                            <div class="form-group">
+                                <label >Nom</label>
+                                <input type="text" class="form-control" name="nom" placeholder="Nom" required/>
+                            </div>
+                            <div class="form-group">
+                                <label>Niveau</label>
+                                <input type="text" class="form-control" name="niveau" placeholder="Niveau" required/>
+                            </div>
+                            <div class="form-group">
+                                <input type="hidden" name="idf" th:each="formation:${listFor}" th:value="${formation.id}" />
+                            </div>
+
+                        </div>
+                        <div class="modal-footer" >
+                            <div class="row">
+                                <div class="col-lg-3  col-md-3 col-sm-3 col-xs-4">
+                                    <button type="submit" class="btn btn-success">Ajouter</button>
+                                </div>
+                                <div class="col-lg-offset-5 col-lg-3 col-md-offset-5 col-md-3 col-sm-offset-5 col-sm-3 col-xs-8">
+                                    <button type="submit" class="btn btn-default " data-dismiss="modal">Annuler</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped" id="table_Classe">
+            <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Niveau</th>
+                <th>Identifiant</th>
+                <th>Modifier</th>
+                <th>Archiver</th>
+                <th>Supprimer</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="c:${classes}">
+                <td th:text="${c.nom}"></td>
+                <td th:text="${c.niveau}"></td>
+                <td th:text="${c.id}"></td>
+                <td>
+                    <button class="btn btn-info btn-sm" data-title="Edit" data-toggle="modal" th:attr="data-target='#form_Modifier_Etudiant'+${c.id}" >
+                        Modifier
+                    </button>
+                </td>
+                <td>
+                    <button th:if="${c.isArchive()} == false" class="btn btn-warning btn-xs" data-toggle="modal" th:attr="data-target='#form_Archiver_Permanent'+${c.id}">
+                        Archiver
+                    </button>
+                    <button th:if="${c.isArchive()} == true" class="btn btn-primary btn-xs" data-toggle="modal" th:attr="data-target='#form_Archiver_Permanent'+${c.id}">
+                        Desarchiver
+                    </button>
+                </td>
+                <td>
+                    <button class="btn btn-danger btn-sm" data-title="Delete" data-toggle="modal" th:attr="data-target='#form_Supprimer_Etudiant'+${c.id}">
+                        Supprimer
+                    </button>
+                </td>
+
+                <div data-dismiss="modal">
+                    <div class="modal fade" th:attr="id='form_Modifier_Etudiant'+${c.id}" >
+                        <div class="modal-dialog" >
+                            <div class="modal-content panel-info" >
+                                <!--modal Header-->
+                                <div class="modal-header panel-heading" >
+                                    <button type="button" class="close" data-dismiss="modal">x</button>
+                                    <h4 class="modal-title" style="text-align: center">Modifier Classe</h4>
+                                </div>
+                                <!--modal Body-->
+                                <form th:action="@{modifierClasse}" method="post">
+                                    <div class="modal-body" >
+                                        <div style="display: none">
+                                            <input name="id" th:value="${c.id}" />
+                                        </div>
+                                        <div class="form-group">
+                                            <label >Nom</label>
+                                            <input type="text" class="form-control" name="nom" placeholder="Nom" th:value="${c.nom}"/>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Niveau</label>
+                                            <input type="text" class="form-control" name="niveau" placeholder="Niveau" th:value="${c.niveau}"/>
+                                        </div>
+                                        <div class="form-group">
+                                            <input type="hidden" name="idf" th:each="ue:${listFor}" th:value="${formation.id}" />
+                                        </div>
+                                    </div>
+                                    <!--modal Footer-->
+                                    <div class="modal-footer" >
+                                        <div class="row">
+                                            <div class="col-lg-3  col-md-3 col-sm-3 col-xs-4">
+                                                <button type="submit" class="btn btn-info" >Modifier</button>
+                                            </div>
+                                            <div class="col-lg-offset-5 col-lg-3 col-md-offset-5 col-md-3 col-sm-offset-5 col-sm-3 col-xs-8">
+                                                <button type="button" class="btn btn-default " data-dismiss="modal">Annuler</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div data-dismiss="modal">
+                    <div class="modal fade" th:attr="id='form_Supprimer_Etudiant'+${c.id}">
+                        <div class="modal-dialog" >
+                            <div class="modal-content panel-danger" >
+                                <!--modal Header-->
+                                <div class="modal-header panel-heading" >
+                                    <button type="button" class="close" data-dismiss="modal">x</button>
+                                    <h4 class="modal-title" style="text-align: center">Supprimer Classe</h4>
+                                </div>
+
+                                <!-- Debut popup Archiver un Permanent -->
+                                <div data-dismiss="modal">
+                                    <div class="modal fade" th:attr="id='form_Archiver_Permanent'+${c.id}">
+                                        <div class="modal-dialog" >
+
+                                            <div th:if="${c.isArchive()} == false" class="modal-content panel-warning" >
+                                                <!--modal Header-->
+                                                <div class="modal-header panel-heading" >
+                                                    <button type="button" class="close" data-dismiss="modal">x</button>
+                                                    <h4 class="modal-title" style="text-align: center">Archiver Classe</h4>
+                                                </div>
+                                                <!--modal Body-->
+                                                <form th:action="@{/ChefDepartement/archiverClasse}" method="post">
+                                                    <div class="modal-body" >
+                                                        <div style="display: none">
+                                                            <input name="id" th:value="${c.id}" />
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label >Nom</label> :
+                                                            <span th:text="${c.nom}"/> </span>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label >Niveau</label> :
+                                                            <span th:text="${c.niveau}"/> </span>
+                                                        </div>
+                                                    </div>
+                                                    <!--modal Footer-->
+                                                    <div class="modal-footer" >
+                                                        <div class="row">
+                                                            <div class="col-lg-3  col-md-3 col-sm-3 col-xs-4">
+                                                                <button type="submit" class="btn btn-warning">Archiver</button>
+                                                            </div>
+                                                            <div class="col-lg-offset-5 col-lg-3 col-md-offset-5 col-md-3 col-sm-offset-5 col-sm-3 col-xs-8">
+                                                                <button type="button" class="btn btn-default " data-dismiss="modal">Annuler</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+
+                                            <div th:if="${c.isArchive()} == true" class="modal-content panel-primary" >
+                                                <!--modal Header-->
+                                                <div class="modal-header panel-heading" >
+                                                    <button type="button" class="close" data-dismiss="modal">x</button>
+                                                    <h4 class="modal-title" style="text-align: center">Desarchiver Classe</h4>
+                                                </div>
+                                                <!--modal Body-->
+                                                <form th:action="@{/ChefDepartement/archiverClasse}" method="post">
+                                                    <div class="modal-body" >
+                                                        <div style="display: none">
+                                                            <input name="id" th:value="${c.id}" />
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label >Nom</label> :
+                                                            <span th:text="${c.nom}"/> </span>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label >Niveau</label> :
+                                                            <span th:text="${c.niveau}"/> </span>
+                                                        </div>
+                                                    </div>
+                                                    <!--modal Footer-->
+                                                    <div class="modal-footer" >
+                                                        <div class="row">
+                                                            <div class="col-lg-3  col-md-3 col-sm-3 col-xs-4">
+                                                                <button type="submit" class="btn btn-primary">Desarchiver</button>
+                                                            </div>
+                                                            <div class="col-lg-offset-5 col-lg-3 col-md-offset-5 col-md-3 col-sm-offset-5 col-sm-3 col-xs-8">
+                                                                <button type="button" class="btn btn-default " data-dismiss="modal">Annuler</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Fin popup Archiver un Permanent -->
+
+                                <!--modal Body-->
+                                <form th:action="@{supprimerClasse}" method="post">
+                                    <div class="modal-body" >
+                                        <div style="display: none">
+                                            <input name="id" th:value="${c.id}" />
+                                        </div>
+                                        <div class="form-group">
+                                            <label >Nom</label> :
+                                            <span th:text="${c.nom}"> </span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Niveau</label>
+                                            <span th:text="${c.niveau}"></span>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer" >
+                                        <div class="row">
+                                            <div class="col-lg-3  col-md-3 col-sm-3 col-xs-4">
+                                                <button type="submit" class="btn btn-danger">Supprimer</button>
+                                            </div>
+                                            <div class="col-lg-offset-5 col-lg-3 col-md-offset-5 col-md-3 col-sm-offset-5 col-sm-3 col-xs-8">
+                                                <button type="button" class="btn btn-default " data-dismiss="modal">Annuler</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <!-- Fin lister tout les ECs     -->
+
+
+
+    <!-- Debut Datatable lister EC -->
+    <script>
+        $(document).ready(function() {
+            $("#table_Classe").DataTable({
+
+            });
+        })
+    </script>
+    <!-- Fin Datatable lister ECs -->
+
+</div>
+
+
+
+
+
+</body>
+</html>
