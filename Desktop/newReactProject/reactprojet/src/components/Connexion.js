@@ -29,16 +29,27 @@ const Connexion = () => {
                 body: JSON.stringify(login)
             });
 
-            if (!response.ok) {
-                throw new Error(`Erreur HTTP : ${response.status}`);
-            }
-
             const data = await response.json();
             localStorage.setItem('token', data.token);
-            alert('Connexion réussie !');
-            navigate('/');
+            localStorage.setItem('role', data.role);
+
+            switch (data.role) {
+                
+                case 'permanent':
+                    navigate('/permanent');
+                    break;
+                case 'vacataire':
+                    navigate('/vacataire');
+                    break;
+                case 'etudiant':
+                    navigate('/etudiant');
+                    break;
+                default:
+                    navigate('/permanent');
+                    break;
+            }
         } catch (error) {
-            alert('Erreur de connexion');
+            alert('Username ou mot de passe incorrect');
             console.error('Erreur Fetch :', error);
         }
     };
@@ -69,8 +80,10 @@ const Connexion = () => {
                 </div>
                 <button type="submit">Se connecter</button>
             </form>
+            <Link to="/inscrire">Pas de compte ? Inscrivez-vous</Link>
         </div>
     );
 };
 
 export default Connexion;
+

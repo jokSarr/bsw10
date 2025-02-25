@@ -1,16 +1,35 @@
 import React, { useState } from 'react';
 import '../styles/Inscription.css';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import AppBar from '@mui/material/AppBar';
+import Box from '@mui/material/Box';
+import Toolbar from '@mui/material/Toolbar';
+import Button from '@mui/material/Button';
 
-<Link to="/connecter">Déjà un compte ? Connectez-vous</Link>
+function ButtonAppBar() {
+  return (
+    <Box sx={{ flexGrow: 1 }}>
+      <AppBar position="static">
+        <Toolbar>
+        <Button color="inherit" component={Link} to="/connexion">
+            Déjà un compte ? Connectez-vous
+        </Button>
 
-
-
+        </Toolbar>
+      </AppBar>
+    </Box>
+  );
+}
 const Inscription = () => {
+    const navigate = useNavigate();
+
     const [utilisateur, setUtilisateur] = useState({
         username: '',
+        prenom: '',
+        nom: '',
         email: '',
         password: '',
+        role: '', 
     });
 
     const handleChange = (e) => {
@@ -23,9 +42,7 @@ const Inscription = () => {
         try {
             const response = await fetch('http://localhost:8081/auth/inscrire', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(utilisateur)
             });
 
@@ -33,9 +50,8 @@ const Inscription = () => {
                 throw new Error(`Erreur HTTP : ${response.status}`);
             }
 
-            const data = await response.json();
             alert('Inscription réussie !');
-            console.log('Réponse du serveur :', data);
+            navigate('/'); 
         } catch (error) {
             alert('Erreur lors de l\'inscription');
             console.error('Erreur Fetch :', error);
@@ -43,61 +59,42 @@ const Inscription = () => {
     };
 
     return (
+        <div>
+        <ButtonAppBar/>
+    
         <div className="inscription-container">
+            
             <h2>Inscription</h2>
             <form onSubmit={handleSubmit}>
                 <div className="form-group">
                     <label>Nom d'utilisateur</label>
-                    <input
-                        type="text"
-                        name="username"
-                        value={utilisateur.username}
-                        onChange={handleChange}
-                        required
-                    />
+                    <input type="text" name="username" value={utilisateur.username} onChange={handleChange} required />
                 </div>
                 <div className="form-group">
-                    <label>Prenom</label>
-                    <input
-                        type="prenom"
-                        name="prenom"
-                        value={utilisateur.prenom}
-                        onChange={handleChange}
-                        required
-                    />
+                    <label>Prénom</label>
+                    <input type="text" name="prenom" value={utilisateur.prenom} onChange={handleChange} required />
                 </div>
                 <div className="form-group">
                     <label>Nom</label>
-                    <input
-                        type="nom"
-                        name="nom"
-                        value={utilisateur.nom}
-                        onChange={handleChange}
-                        required
-                    />
+                    <input type="text" name="nom" value={utilisateur.nom} onChange={handleChange} required />
                 </div>
+        
                 <div className="form-group">
-                    <label>Role</label>
-                    <input
-                        type="role"
-                        name="role"
-                        value={utilisateur.role}
-                        onChange={handleChange}
-                        required
-                    />
+                    <label>Rôle</label>
+                    <select name="role" value={utilisateur.role} onChange={handleChange} required>
+                        <option value="permanent">Permanent</option>
+                        <option value="vacataire">Vacataire</option>
+                        <option value="etudiant">Étudiant</option>
+                    </select>
                 </div>
                 <div className="form-group">
                     <label>Mot de passe</label>
-                    <input
-                        type="password"
-                        name="password"
-                        value={utilisateur.password}
-                        onChange={handleChange}
-                        required
-                    />
+                    <input type="password" name="password" value={utilisateur.password} onChange={handleChange} required />
                 </div>
                 <button type="submit">S'inscrire</button>
             </form>
+            
+        </div>
         </div>
     );
 };
